@@ -144,10 +144,25 @@ fun MainAppContainer(
             userName = userProfile.userName,
             isPinUpgradedTo6Digits = userProfile.isPinUpgradedTo6Digits,
             onVerifyPin = { pin, onSuccess, onError ->
-                viewModel.verifyPin(pin, onSuccess, onError)
+                viewModel.verifyPin(
+                    pin,
+                    {
+                        currentScreen = AppScreen.HOME
+                        onSuccess()
+                    },
+                    onError
+                )
             },
             onUpgradePin = { currentPin, newPin, onSuccess, onError ->
-                viewModel.upgradePin(currentPin, newPin, onSuccess, onError)
+                viewModel.upgradePin(
+                    currentPin,
+                    newPin,
+                    {
+                        currentScreen = AppScreen.HOME
+                        onSuccess()
+                    },
+                    onError
+                )
             }
         )
         return

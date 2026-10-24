@@ -7,18 +7,25 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.AccountBalanceWallet
@@ -131,7 +138,12 @@ fun PinLockScreen(
                 )
             },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Column(
+                    modifier = Modifier
+                        .heightIn(max = 360.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
                     Text(
                         text = "Pockitify now requires a 6-digit PIN for enhanced security. Verify your current PIN and choose your new 6-digit PIN. Your financial data will remain completely intact.",
                         color = TextGrayLight,
@@ -243,21 +255,35 @@ fun PinLockScreen(
         )
     }
 
-    Column(
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxSize()
             .background(MidnightNavy)
-            .padding(horizontal = 24.dp, vertical = 32.dp)
-            .testTag("pin_lock_screen"),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+            .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
+        val compact = maxHeight < 680.dp
+        val keypadButtonSize = when {
+            maxHeight < 600.dp -> 52.dp
+            maxHeight < 720.dp -> 58.dp
+            else -> 64.dp
+        }
+        val sectionSpacing = if (compact) 12.dp else 20.dp
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = if (compact) 12.dp else 20.dp)
+                .testTag("pin_lock_screen"),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(sectionSpacing, Alignment.CenterVertically)
+        ) {
         // Top Logo & Welcome
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Box(
                 modifier = Modifier
-                    .size(64.dp)
-                    .clip(RoundedCornerShape(18.dp))
+                    .size(if (compact) 54.dp else 60.dp)
+                    .clip(RoundedCornerShape(if (compact) 16.dp else 18.dp))
                     .background(
                         Brush.linearGradient(listOf(EmeraldGreen, Color(0xFF047857)))
                     ),
@@ -267,11 +293,11 @@ fun PinLockScreen(
                     imageVector = Icons.Default.AccountBalanceWallet,
                     contentDescription = "Pockitify Logo",
                     tint = Color.White,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(if (compact) 28.dp else 30.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(if (compact) 6.dp else 10.dp))
 
             Text(
                 text = buildAnnotatedString {
@@ -288,7 +314,7 @@ fun PinLockScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = if (userName.isNotBlank()) "Welcome back, $userName" else "Welcome back",
@@ -364,7 +390,7 @@ fun PinLockScreen(
             }
 
             if (errorMessage != null) {
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(if (compact) 8.dp else 12.dp))
                 Text(
                     text = errorMessage ?: "",
                     color = ExpenseRed,
@@ -380,7 +406,7 @@ fun PinLockScreen(
         // Custom Numeric Keypad
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+            verticalArrangement = Arrangement.spacedBy(if (compact) 6.dp else 8.dp)
         ) {
             // Rows 1-3
             val keyRows = listOf(
@@ -397,6 +423,7 @@ fun PinLockScreen(
                     for (digit in row) {
                         PinKeyButton(
                             text = digit,
+                            buttonSize = keypadButtonSize,
                             onClick = { onDigitPress(digit) }
                         )
                     }
@@ -412,7 +439,7 @@ fun PinLockScreen(
                 // Clear button
                 Box(
                     modifier = Modifier
-                        .size(72.dp)
+                        .size(keypadButtonSize)
                         .clip(CircleShape)
                         .clickable {
                             enteredPin = ""
@@ -433,13 +460,14 @@ fun PinLockScreen(
                 // 0 button
                 PinKeyButton(
                     text = "0",
+                    buttonSize = keypadButtonSize,
                     onClick = { onDigitPress("0") }
                 )
 
                 // Backspace
                 Box(
                     modifier = Modifier
-                        .size(72.dp)
+                        .size(keypadButtonSize)
                         .clip(CircleShape)
                         .clickable { onBackspace() }
                         .testTag("keypad_backspace"),
@@ -449,22 +477,24 @@ fun PinLockScreen(
                         imageVector = Icons.AutoMirrored.Filled.Backspace,
                         contentDescription = "Backspace",
                         tint = TextWhite,
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(if (compact) 20.dp else 22.dp)
                     )
                 }
             }
         }
+    }
     }
 }
 
 @Composable
 fun PinKeyButton(
     text: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    buttonSize: androidx.compose.ui.unit.Dp = 72.dp
 ) {
     Box(
         modifier = Modifier
-            .size(72.dp)
+            .size(buttonSize)
             .clip(CircleShape)
             .background(DarkSurfaceCard)
             .border(1.dp, Color(0xFF1B2E4E), CircleShape)
