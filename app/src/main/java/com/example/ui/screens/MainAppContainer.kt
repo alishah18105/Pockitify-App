@@ -142,8 +142,12 @@ fun MainAppContainer(
     if (userProfile.isLocked) {
         PinLockScreen(
             userName = userProfile.userName,
+            isPinUpgradedTo6Digits = userProfile.isPinUpgradedTo6Digits,
             onVerifyPin = { pin, onSuccess, onError ->
                 viewModel.verifyPin(pin, onSuccess, onError)
+            },
+            onUpgradePin = { currentPin, newPin, onSuccess, onError ->
+                viewModel.upgradePin(currentPin, newPin, onSuccess, onError)
             }
         )
         return
@@ -275,7 +279,8 @@ fun MainAppContainer(
                         onResetMonthClicked = {
                             viewModel.resetMonth()
                         },
-                        onLockApp = { viewModel.lockApp() }
+                        onLockApp = { viewModel.lockApp() },
+                        onLogout = { viewModel.logout() }
                     )
                 }
 

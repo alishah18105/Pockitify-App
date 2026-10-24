@@ -94,26 +94,6 @@ fun PinLockScreen(
             enteredPin = updated
             errorMessage = null
 
-            // If user has not yet upgraded to 6 digits, check if their 4-digit PIN matches to trigger upgrade
-            if (!isPinUpgradedTo6Digits && updated.length == 4) {
-                onVerifyPin(
-                    updated,
-                    {
-                        // 4-digit PIN verified! Show upgrade dialog immediately
-                        upgradeCurrentPin = updated
-                        upgradeNewPin = ""
-                        upgradeConfirmPin = ""
-                        upgradeError = null
-                        showUpgradeDialog = true
-                        enteredPin = ""
-                        errorMessage = null
-                    },
-                    {
-                        // Silent check; allow continuing to 6 digits in case they already have 6 digits
-                    }
-                )
-            }
-
             if (updated.length == 6) {
                 onVerifyPin(
                     updated,

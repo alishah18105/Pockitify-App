@@ -116,6 +116,37 @@ fun SettingsScreen(
     var showRestoreDialog by remember { mutableStateOf(false) }
     var restoreJsonInput by remember { mutableStateOf("") }
     var restoreStatus by remember { mutableStateOf<String?>(null) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            containerColor = DarkSurface,
+            title = { Text("Log out of Pockitify?", color = TextWhite, fontWeight = FontWeight.Bold) },
+            text = {
+                Text(
+                    "You will need your PIN to unlock the app again. Your financial data will remain on this device.",
+                    color = TextGrayLight
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showLogoutDialog = false
+                        onLogout()
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = EmeraldGreen)
+                ) {
+                    Text("Log out", color = Color.White)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showLogoutDialog = false }) {
+                    Text("Cancel", color = TextGray)
+                }
+            }
+        )
+    }
 
     // Dialog for Name Change
     if (showNameDialog) {
@@ -531,6 +562,13 @@ fun SettingsScreen(
                 title = "Lock Pockitify Now",
                 subtitle = "Require PIN on next entry",
                 onClick = onLockApp
+            )
+
+            SettingsItem(
+                icon = Icons.AutoMirrored.Filled.Logout,
+                title = "Logout",
+                subtitle = "Log out and require your PIN to sign in again",
+                onClick = { showLogoutDialog = true }
             )
         }
 
