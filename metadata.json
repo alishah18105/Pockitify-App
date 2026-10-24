@@ -1,0 +1,6 @@
+{
+  "name": "Pockitify",
+  "description": "Native Android personal finance and expense manager for Allied Bank, United Bank, and Cash Wallet with PIN security.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
